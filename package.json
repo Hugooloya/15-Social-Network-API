@@ -1,0 +1,26 @@
+{
+  "name": "18-social-network-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hugooloya/18-Social-Network-API.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Hugooloya/18-Social-Network-API/issues"
+  },
+  "homepage": "https://github.com/Hugooloya/18-Social-Network-API#readme",
+  "dependencies": {
+    "dayjs": "^1.11.7",
+    "express": "^4.18.2",
+    "mongoose": "^6.8.3"
+  }
+}
