@@ -1,35 +1,7 @@
 const { Schema, model, Types } = require("mongoose");
-const dayjs = require("dayjs");
+const dateFormat = require("../utils/dateFormat");
 
-const ThoughtSchema = new Schema(
-  {
-    thoughtText: {
-      type: String,
-      required: true,
-      maxLength: 280,
-      minLength: 1,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      //formated date here, need read dayjs docs
-    },
-    username: {
-      type: String,
-      required: true,
-    },
-    reactions: [ReactionSchema],
-  },
-  {
-    toJSON: {
-      virtuals: true,
-      getters: true,
-    },
-    id: false,
-  }
-);
-
-const ReactionSchema = new Schema({
+const reactionSchema = new Schema({
   reactionId: {
     type: Schema.Types.ObjectId,
     default: () => new Types.ObjectId(),
@@ -46,9 +18,38 @@ const ReactionSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    //formated date here, need read dayjs docs
+    get: (createdAtVal) => dateFormat(createdAtVal),
   },
 });
+
+const ThoughtSchema = new Schema(
+  {
+    thoughtText: {
+      type: String,
+      required: true,
+      maxLength: 280,
+      minLength: 1,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      get: (createdAtVal) => dateFormat(createdAtVal),
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+    reactions: [reactionSchema],
+  },
+  {
+    toJSON: {
+      virtuals: true,
+      getters: true,
+    },
+    // prevents virtuals from creating duplicate of _id as `id`
+    id: false,
+  }
+);
 
 ThoughtSchema.virtual("reactionCount").get(function () {
   return this.reactions.length;

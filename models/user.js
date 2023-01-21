@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose");
-const validator = require("validator");
 
 const UserSchema = new Schema(
   {
@@ -13,12 +12,17 @@ const UserSchema = new Schema(
       type: String,
       required: true,
       unique: true,
-      match: [isEmail, "Please fill a valid email address"],
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please fill a valid email address",
+      ],
     },
-    thoughts: {
-      type: Schema.Types.ObjectId,
-      ref: "Thought",
-    },
+    thoughts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Thought",
+      },
+    ],
     friends: [
       {
         type: Schema.Types.ObjectId,
@@ -28,9 +32,10 @@ const UserSchema = new Schema(
   },
   {
     toJSON: {
+      virtuals: true,
       getters: true,
-      visrtuals: true,
     },
+    // prevents virtuals from creating duplicate of _id as `id`
     id: false,
   }
 );
@@ -41,4 +46,4 @@ UserSchema.virtual("friendCount").get(function () {
 
 const User = model("User", UserSchema);
 
-model.export = User;
+module.exports = User;
