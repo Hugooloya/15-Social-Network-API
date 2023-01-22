@@ -1,3 +1,4 @@
+const { json } = require("express");
 const { User, Thought } = require("../models");
 
 module.exports = {
@@ -49,41 +50,10 @@ module.exports = {
   },
 
   // update thought
-  // NOT TESTED
   updateThought(req, res) {
     Thought.findOneAndUpdate(
-      { _id: re.params.thoughtId },
-      { $set: body },
-      { new: true, runValidators: true }
-    )
-      .then((dbThoughtData) => {
-        if (!dbThoughtData) {
-          res.status(404).json({ message: "No thought found with this id!" });
-          return;
-        }
-        res.json(dbThoughtData);
-      })
-      .catch((err) => res.json(err));
-  },
-
-  // remove thought
-  // NOT TESTED
-  removeThought({ params }, res) {
-    Thought.findOneAndDelete({ _id: params.thoughtId })
-      .then((deletedThought) => {
-        if (!deletedThought) {
-          return res.status(404).json({ message: "No thought with this id!" });
-        }
-      })
-      .catch((err) => res.json(err));
-  },
-
-  // Add a reaction to thought
-  // NOT TESTED
-  addReaction(req, res) {
-    Thought.findOneAndUpdate(
-      { _id: req.body.thoughtId },
-      { $push: { reactions: req.body } },
+      { _id: req.params.thoughtId },
+      { $set: req.body },
       { new: true, runValidators: true }
     )
       .then((dbThoughtData) =>
@@ -91,17 +61,53 @@ module.exports = {
           ? res.status(404).json({ message: "No thought found with this id!" })
           : res.json(dbThoughtData)
       )
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  },
+
+  // remove thought
+  removeThought(req, res) {
+    Thought.findOneAndDelete({ _id: req.params.thoughtId })
+      .then((deletedThought) =>
+        !deletedThought
+          ? res.status(404).json({ message: "No thought with this id!" })
+          : res.json(deletedThought)
+      )
+      .catch((err) => {
+        console.log(err);
+        res.status(500).json(err);
+      });
+  },
+
+  // Add a reaction to thought
+  addReaction(req, res) {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $push: { reactions: req.body } },
+      { new: true, runValidators: true }
+    )
+      .then((dbThoughtData) =>
+        !dbThoughtData
+          ? res.status(404).json({ message: "No thought found with this ID!" })
+          : res.json(dbThoughtData)
+      )
       .catch((err) => res.status(500).json(err));
   },
-  // remove reply
-  // NOT TESTED
-  removeReaction({ params }, res) {
+
+  // Remove reaction from thought
+  removeReaction(req, res) {
     Thought.findOneAndUpdate(
-      { _id: params.thoughtId },
-      { $pull: { reactions: { reactionId: params.reactionId } } },
-      { new: true }
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { runValidators: true, new: true }
     )
-      .then((dbThoughtData) => res.json(dbThoughtData))
-      .catch((err) => res.json(err));
+      .then((reaction) =>
+        !reaction
+          ? res.status(404).json({ message: "No reaction with this ID!" })
+          : res.json(reaction)
+      )
+      .catch((err) => res.status(500).json(err));
   },
 };
